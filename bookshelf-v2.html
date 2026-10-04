@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bookshelf – Book Information</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Literata:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14213d;--muted:#4f5d78;--card:rgba(255,255,255,.72);--line:rgba(20,33,61,.14);--accent:#1f6b8f;
+--g1:#ffd6e0;--g2:#c9e4ff;--g3:#d7f5e6;--g4:#ffe9b8;--base:#f4f6fb}
+@media (prefers-color-scheme:dark){:root{--ink:#eaf0fb;--muted:#a3b1cc;--card:rgba(24,34,58,.7);--line:rgba(255,255,255,.14);--accent:#7fd0e8;
+--g1:#4a1d4f;--g2:#123b6b;--g3:#0f4a45;--g4:#4d3a12;--base:#0b1120}}
+*{box-sizing:border-box}
+html{min-height:100%}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:Literata,Georgia,serif;line-height:1.65;background:var(--base)}
+/* Beautiful background: soft colour glows + fine grain */
+body::before{content:"";position:fixed;inset:0;z-index:-2;
+background:
+radial-gradient(60vw 50vh at 8% 6%,var(--g1),transparent 70%),
+radial-gradient(55vw 55vh at 95% 10%,var(--g2),transparent 70%),
+radial-gradient(60vw 60vh at 85% 95%,var(--g3),transparent 70%),
+radial-gradient(50vw 50vh at 5% 90%,var(--g4),transparent 70%),
+var(--base)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;opacity:.35;pointer-events:none;
+background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px 56px}
+header.top{padding:40px 0 18px;display:flex;flex-wrap:wrap;gap:16px;align-items:end;justify-content:space-between}
+h1,h2{font-family:'Bricolage Grotesque',system-ui,sans-serif}
+h1{margin:0;font-size:clamp(2.2rem,6vw,3.4rem);line-height:1.05;font-weight:800;letter-spacing:-.02em}
+.sub{margin:6px 0 0;color:var(--muted)}
+.brand{color:inherit;text-decoration:none}
+input[type=search]{font:inherit;padding:10px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);backdrop-filter:blur(8px);color:var(--ink);min-width:240px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:34px 26px;margin-top:24px}
+.book{display:block;text-decoration:none;color:inherit}
+.cover{aspect-ratio:2/3;border-radius:3px 8px 8px 3px;padding:16px 14px 14px 22px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;box-shadow:inset 8px 0 0 rgba(0,0,0,.22),0 12px 24px rgba(20,33,61,.28);transition:transform .18s}
+.book:hover .cover,.book:focus-visible .cover{transform:translateY(-6px) rotate(-1deg)}
+.ct{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.25rem;line-height:1.1}
+.ca{font-size:.8rem;opacity:.9}
+.meta{margin-top:12px}
+.meta b{font-family:'Bricolage Grotesque',sans-serif;display:block;line-height:1.25}
+.meta span{color:var(--muted);font-size:.88rem}
+.back{display:inline-block;margin:28px 0 18px;color:var(--accent);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;text-decoration:none}
+.back:hover{text-decoration:underline}
+.detail{display:grid;grid-template-columns:260px 1fr;gap:40px;align-items:start}
+.detail .cover .ct{font-size:1.7rem}
+.detail .cover{padding:22px 18px 18px 28px}
+h2{font-size:clamp(1.9rem,5vw,2.8rem);margin:0;line-height:1.1;letter-spacing:-.02em}
+.by{color:var(--muted);font-size:1.1rem;margin:6px 0 20px}
+dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:0 0 24px}
+dl div{background:var(--card);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+dt{color:var(--muted);font-size:.8rem}
+dd{margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:700}
+.detail p{max-width:62ch;margin:0 0 14px}
+.empty{padding:40px 0;color:var(--muted)}
+@media(max-width:700px){.detail{grid-template-columns:1fr;gap:24px}.detail .cover{max-width:220px}input[type=search]{min-width:0;width:100%}}
+@media(prefers-reduced-motion:reduce){.cover{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <a class="brand" href="#/"><h1>Bookshelf</h1></a>
+      <p class="sub">Six books worth knowing. Select one to read more.</p>
+    </div>
+    <input id="q" type="search" placeholder="Search title or author" aria-label="Search books">
+  </header>
+  <main id="app"></main>
+</div>
+<script>
+var BOOKS=[
+{id:"pride-and-prejudice",title:"Pride and Prejudice",author:"Jane Austen",year:1813,genre:"Romance",pages:432,lang:"English",color:"#8c3b5a",desc:["Elizabeth Bennet, one of five sisters in a family with little money, meets the proud and wealthy Mr. Darcy. Their first impressions of each other are wrong, and the novel follows how each learns to see more clearly.","Austen uses humour and sharp observation to examine marriage, class and reputation in Regency England."]},
+{id:"1984",title:"1984",author:"George Orwell",year:1949,genre:"Dystopian fiction",pages:328,lang:"English",color:"#9b2d2d",desc:["Winston Smith lives in Oceania, a state ruled by the Party and its watchful leader Big Brother. His job is to rewrite old records so they match whatever the Party now says is true.","When he begins a secret act of rebellion, the book shows how surveillance, propaganda and control of language can crush independent thought."]},
+{id:"to-kill-a-mockingbird",title:"To Kill a Mockingbird",author:"Harper Lee",year:1960,genre:"Southern Gothic",pages:281,lang:"English",color:"#3d6b4f",desc:["Scout Finch grows up in a small Alabama town during the 1930s. Her father, the lawyer Atticus Finch, defends a Black man falsely accused of a crime.","Told through a child's eyes, the novel deals with racism, courage and the loss of innocence."]},
+{id:"the-hobbit",title:"The Hobbit",author:"J. R. R. Tolkien",year:1937,genre:"Fantasy",pages:310,lang:"English",color:"#9a6b1d",desc:["Bilbo Baggins, a comfort-loving hobbit, is swept into a quest with the wizard Gandalf and thirteen dwarves to reclaim a treasure guarded by the dragon Smaug.","A warm adventure about courage found in unlikely places, and the story that leads into The Lord of the Rings."]},
+{id:"malgudi-days",title:"Malgudi Days",author:"R. K. Narayan",year:1943,genre:"Short stories",pages:256,lang:"English",color:"#2a6f6b",desc:["A collection of stories set in Malgudi, a fictional South Indian town. Its schoolboys, shopkeepers, astrologers and dreamers each get a small, gently comic tale.","Narayan writes with warmth and a light touch about ordinary Indian life."]},
+{id:"the-god-of-small-things",title:"The God of Small Things",author:"Arundhati Roy",year:1997,genre:"Literary fiction",pages:321,lang:"English",color:"#6a3f7a",desc:["Fraternal twins Rahel and Estha grow up in Ayemenem, Kerala, in a family shaped by caste, class and a forbidden love.","The story moves between past and present, and won the Booker Prize in 1997."]}
+];
+var app=document.getElementById('app'),q=document.getElementById('q'),top_=document.querySelector('.top');
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function cover(b){return '<div class="cover" style="background:'+b.color+'"><span class="ct">'+esc(b.title)+'</span><span class="ca">'+esc(b.author)+'</span></div>'}
+function home(){
+  var t=q.value.trim().toLowerCase();
+  var list=BOOKS.filter(function(b){return (b.title+' '+b.author).toLowerCase().indexOf(t)>-1});
+  if(!list.length){app.innerHTML='<p class="empty">No books match “'+esc(q.value)+'”. Try a different title or author.</p>';return}
+  app.innerHTML='<div class="grid">'+list.map(function(b){
+    return '<a class="book" href="#/book/'+b.id+'">'+cover(b)+'<div class="meta"><b>'+esc(b.title)+'</b><span>'+esc(b.author)+'</span></div></a>'}).join('')+'</div>';
+}
+function detail(id){
+  var b=BOOKS.filter(function(x){return x.id===id})[0];
+  if(!b){app.innerHTML='<a class="back" href="#/">← All books</a><p class="empty">That book was not found.</p>';return}
+  document.title=b.title+' – Bookshelf';
+  app.innerHTML='<a class="back" href="#/">← All books</a><article class="detail"><div>'+cover(b)+'</div><div><h2>'+esc(b.title)+'</h2><p class="by">by '+esc(b.author)+'</p>'+
+  '<dl><div><dt>Published</dt><dd>'+b.year+'</dd></div><div><dt>Genre</dt><dd>'+esc(b.genre)+'</dd></div><div><dt>Pages</dt><dd>about '+b.pages+'</dd></div><div><dt>Language</dt><dd>'+esc(b.lang)+'</dd></div></dl>'+
+  b.desc.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+'</div></article>';
+}
+function route(){
+  var m=location.hash.match(/^#\/book\/(.+)$/);
+  window.scrollTo(0,0);
+  if(m){top_.style.display='none';detail(m[1])}
+  else{document.title='Bookshelf – Book Information';top_.style.display='';home()}
+}
+q.addEventListener('input',function(){if(location.hash.indexOf('#/book/')===0)location.hash='#/';else home()});
+window.addEventListener('hashchange',route);route();
+</script>
+</body>
+</html>
